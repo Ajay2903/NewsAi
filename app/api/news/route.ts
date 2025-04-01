@@ -12,7 +12,7 @@ export async function GET(request: Request) {
         const response = await fetch(url);
         const data = await response.json();
         return NextResponse.json(data.articles as Article[]);
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json(
             { error: 'Failed to fetch news' },
             { status: 500 }

@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -27,17 +28,18 @@ export default function SignIn() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/'); // Redirect to homepage after successful login
-    } catch (err: any) {
-      if (err.code === 'auth/invalid-credential') {
+    } catch (err) {
+        const firebaseError = err as FirebaseError;
+      if (firebaseError.code === 'auth/invalid-credential') {
         setError('Invalid email or password. Please try again.');
-      } else if (err.code === 'auth/user-not-found') {
+      } else if (firebaseError.code === 'auth/user-not-found') {
         setError('No account found with this email. Please sign up.');
-      } else if (err.code === 'auth/too-many-requests') {
+      } else if (firebaseError.code === 'auth/too-many-requests') {
         setError('Too many failed login attempts. Please try again later or reset your password.');
       } else {
         setError('An error occurred. Please try again later.');
       }
-      console.error(err);
+      console.error(firebaseError);
     } finally {
       setLoading(false);
     }
@@ -50,15 +52,16 @@ export default function SignIn() {
     try {
       await sendPasswordResetEmail(auth, resetEmail);
       setResetEmailSent(true);
-    } catch (err: any) {
-      if (err.code === 'auth/user-not-found') {
+    } catch (err) {
+        const firebaseError = err as FirebaseError
+      if (firebaseError.code === 'auth/user-not-found') {
         setResetError('No account found with this email.');
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (firebaseError.code === 'auth/invalid-email') {
         setResetError('Invalid email address.');
       } else {
         setResetError('An error occurred. Please try again later.');
       }
-      console.error(err);
+      console.error(firebaseError);
     }
   };
 
@@ -164,7 +167,7 @@ export default function SignIn() {
               <form onSubmit={handlePasswordReset}>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Reset your password</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Enter your email address and we'll send you a link to reset your password.
+                  Enter your email address and we&apos;ll send you a link to reset your password.
                 </p>
                 
                 {resetError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">

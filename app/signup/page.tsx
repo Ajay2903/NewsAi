@@ -6,7 +6,8 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-
+import { FirebaseError } from 'firebase/app';
+import firebase from 'firebase/compat/app';
 export default function SignUp() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -57,17 +58,18 @@ export default function SignUp() {
       
       // Redirect to homepage after successful registration
       router.push('/');
-    } catch (err: any) {
-      if (err.code === 'auth/email-already-in-use') {
+    } catch (err) {
+        const firebaseError = err as FirebaseError;
+      if (firebaseError.code === 'auth/email-already-in-use') {
         setError('Email is already in use. Please use a different email or sign in.');
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (firebaseError.code === 'auth/invalid-email') {
         setError('Invalid email address');
-      } else if (err.code === 'auth/weak-password') {
+      } else if (firebaseError.code === 'auth/weak-password') {
         setError('Password is too weak');
       } else {
         setError('An error occurred during registration. Please try again.');
       }
-      console.error(err);
+      console.error(firebaseError);
     } finally {
       setLoading(false);
     }
