@@ -7,7 +7,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { FirebaseError } from 'firebase/app';
-import firebase from 'firebase/compat/app';
+
 export default function SignUp() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
